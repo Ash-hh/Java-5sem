@@ -1,5 +1,6 @@
 package com.shabunya.carrent.config;
 
+import com.shabunya.carrent.jwt.JwtFilter;
 import com.shabunya.carrent.model.Role;
 import com.shabunya.carrent.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,65 +13,33 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.persistence.Basic;
 
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    private UserService userService;
-
     @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
+    private JwtFilter jwtFilter;
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception{
-        auth.authenticationProvider(authenticationProvider());
-    }
-
-    @Basic
-    private AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userService);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception{
-        http.authorizeRequests()
-                .antMatchers("/user/new").hasAuthority(Role.ROLE_ADMIN.name())
-                .anyRequest().permitAll()
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .httpBasic().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                    .formLogin()
-                    .loginPage("/login")
-                    .defaultSuccessUrl("/user/new",true)
-                    .loginProcessingUrl("/auth")
-                    .permitAll()
+                .authorizeRequests()
+                .antMatchers("/admin/*").hasRole("ADMIN")
+                .antMatchers("/user/*").hasRole("USER")
+                .antMatchers("/admin/index").hasRole("ADMIN")
+                .antMatchers("/getrentcar/{id}").hasAnyRole("USER","ADMIN")
+                .antMatchers("/register", "/loginin","/getUserInfo","/activate/*","/").permitAll()
                 .and()
-                    .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                    .logoutSuccessUrl("/").deleteCookies("JSESSIONID")
-                    .invalidateHttpSession(true)
-                    .and()
-                .csrf().disable();
-
-
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
-
-
-
-
-
 }

@@ -3,10 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Main</title>
+    <script th:src="@{../js/index.js}" th:inline="javascript"></script>
 </head>
-<body>
-    <a th:href="@{/users/new}">Users</a>
-    <a th:href="@{/login}">Login</a>
-    <a th:href="@{/allcars}">All Cars</a>
+<body onload="indexOnLoadFunc()">
+   <header id="index_header">
+
+   </header>
+   <div class="car_container">
+       <table>
+           <tr>
+               <td>
+                   <h2>Car Name</h2>
+               </td>
+               <td>
+                   <h2>Type</h2>
+               </td>
+               <td>
+                   <h2>Cost per day</h2>
+               </td>
+           </tr>
+           <tr th:each="car : ${cars}">
+               <td th:text="${car.carName}"></td>
+               <td th:text="${car.costPerDay}"></td>
+               <td th:text="${car.type}"></td>
+               <td><a th:href="'/rentcar/'+${car.car_id}">Rent</a></td>
+           </tr>
+       </table>
+   </div>
 </body>
 </html>

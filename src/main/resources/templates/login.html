@@ -2,21 +2,17 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Login Page</title>
+    <title>Login</title>
 </head>
-<body>
-<form th:action="@{/auth}" method="post">
-    <table border="1">
-        <tr>
-            <td>Name</td>
-            <td><input type="text" name="username"></td>
-        </tr>
-        <tr>
-            <td>Password</td>
-            <td><input type="password" name="password"></td>
-        </tr>
-    </table>
-    <button type="submit">Log In</button>
-</form>
+<body onload="loginOnload()">
+<script type="text/javascript" src="../static/js/login.js" th:src="@{../js/login.js}"></script>
+
+<h3>Auth</h3>
+<input type="text" id="login" placeholder="login"><br>
+<input type="password" id="password" placeholder="password">
+
+<button onclick="login()">Submit</button><br>
+<a href="/">home</a><br>
+<div id="message"></div>
 </body>
 </html>
