@@ -1,18 +1,21 @@
 package com.shabunya.carrent.model;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "orders")
 
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Data
 @Getter
 @Setter
@@ -23,11 +26,9 @@ public class Order {
     private Long order_id;
 
     @Column
-    @CreationTimestamp
     private Date dateStart;
 
     @Column
-    @UpdateTimestamp
     private Date dateEnd;
 
     @ManyToOne(fetch = FetchType.LAZY)

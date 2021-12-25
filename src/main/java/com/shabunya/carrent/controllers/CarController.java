@@ -1,7 +1,7 @@
 package com.shabunya.carrent.controllers;
 
 import com.shabunya.carrent.dto.CarDTOAll;
-import com.shabunya.carrent.dto.CarDTOForRent;
+import com.shabunya.carrent.dto.MakeOrderDTO;
 import com.shabunya.carrent.exception.ControllerException;
 import com.shabunya.carrent.model.Car;
 import com.shabunya.carrent.repository.CarRepository;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -38,14 +39,6 @@ public class CarController {
         this.carService = carService;
     }
 
-
-    @GetMapping("/allcars")
-    public ModelAndView carsList(Model model){
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("allcars");
-        model.addAttribute("cars",carService.getAll());
-        return modelAndView;
-    }
 
     @GetMapping("/getrentcar/{id}") //get car for rent by id
     public ResponseEntity<?> rentCar(@PathVariable(name="id")Long id) throws ControllerException {

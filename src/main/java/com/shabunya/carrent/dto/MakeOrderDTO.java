@@ -3,6 +3,7 @@ package com.shabunya.carrent.dto;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 public class MakeOrderDTO {
@@ -10,9 +11,11 @@ public class MakeOrderDTO {
     public Long carId;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    public Date dateRentStart;
+    public LocalDate dateRentStart;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    public Date dateRentEnd;
+    public LocalDate dateRentEnd;
+
+    public BigDecimal sumRentCost;
 
 }

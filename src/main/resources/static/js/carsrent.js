@@ -1,36 +1,65 @@
+
+let token = localStorage.getItem('token');
+let curUrl =  document.URL.split('/')
+let carId = curUrl[4]
+let carCostPerDay;
+
 function carRentPageOnload(){
-
-   // setMinDate();
-
-    let curUrl =  document.URL.split('/')
-    let carId = curUrl[4]
-
-    fetch(`http://localhost:8080/getrentcar/${carId}`)
+    console.log(token);
+    fetch(`/getrentcar/${carId}`,{
+        method:'GET',
+        headers:{'Authorization': `Bearer ${token}`}
+    })
         .then(result=>{
+            console.log(result)
             if(result.ok){
+                console.log(result);
                 return result.json()
             }
         }).then(data=>{
             CarForRent.innerHTML = `Model: ${data.carName} <br> 
                 Type: ${data.type} <br> 
                 Cost per day: ${data.costPerDay}`;
+            carCostPerDay = data.costPerDay;
     })
 }
 
 async function sendRentRequest(){
-    let rentStart = document.getElementById("RentStart").value;
-    let rentEnd = document.getElementById("RentEnd").value;
 
-    let res = await makeOrderForRent({
-        carId:carId,
-        dateRentStart:rentStart,
-        dateRentEnd:rentEnd
-    })
 
-    
+    if(confirm(`Total cost of rent: ${costCalculate()}. Rent?`)){
+        fetch('/makeorder',{
+            method:'POST',
+            headers:{'Authorization': `Bearer ${token}`,
+                'Content-Type':'application/json'},
+            body:JSON.stringify({
+                carId:carId,
+                dateRentStart:document.getElementById("RentStart").value,
+                dateRentEnd:document.getElementById("RentEnd").value,
+                sumRentCost:costCalculate()
+            })
+        }).then(result=>{
+            if(result.ok){
+                alert("Vrooom..");
+                window.location.replace(window.location.origin);
+            }
+        })
+    }
 
 }
-//TODO:calculate cost
+
+function costCalculate(){
+    let start = Date.parse(document.getElementById("RentStart").value);
+    let end = Date.parse(document.getElementById("RentEnd").value);
+    console.log(start,end);
+    let timeDiff = Math.abs(end - start);
+    let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    console.log(diffDays);
+
+    return diffDays == 0 ? carCostPerDay : diffDays * carCostPerDay;
+
+}
+
 function setMinDate(){
     var today = new Date();
     var dd = today.getDate();
@@ -45,6 +74,6 @@ function setMinDate(){
         mm = '0' + mm;
     }
     today = yyyy + '-' + mm + '-' + dd;
-    RentStart.setAttribute("min", today);
-    RentEnd.setAttribute("min", today);
+    document.getElementById("RentEnd").setAttribute("min", today);
+    document.getElementById("RentStart").setAttribute("min", today);
 }

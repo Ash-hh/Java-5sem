@@ -28,7 +28,7 @@ public class User {
     private Long user_id;
 
     @Column
-    private String username;
+    private String login;
 
     @Column
     private String password;
@@ -45,6 +45,7 @@ public class User {
     @Column
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    private Role userRole;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private UserRole userRole;
 }

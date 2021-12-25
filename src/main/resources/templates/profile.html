@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:src="@{../js/profile.js}"></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All Cars</title>
+</head>
+<body onload="profileOnLoad()">
+<header>
+    <a th:href="@{/}">Main</a>
+    <a th:href="@{/logout}">Log Out</a>
+</header>
+<div id="profile_info">
+
+</div>
+<div class="orders_container">
+    <table>
+        <tr>
+            <td>
+                <h2>Car Name</h2>
+            </td>
+            <td>
+                <h2>Type</h2>
+            </td>
+            <td>
+                <h2>Date Start</h2>
+            </td>
+            <td>
+                <h2>Date End</h2>
+            </td>
+            <td>
+                <h2>Sum cost of rent</h2>
+            </td>
+        </tr>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.carName}"></td>
+            <td th:text="${order.carType}"></td>
+            <td th:text="${order.dateRentStart}"></td>
+            <td th:text="${order.dateRentEnd}"></td>
+            <td th:text="${order.sumRentCost}"></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
+</body>
+</html>
