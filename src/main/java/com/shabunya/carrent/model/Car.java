@@ -30,6 +30,7 @@ public class Car {
     private BigDecimal costPerDay;
 
     @Column
-    private String type;
+    @Enumerated
+    private CarTypes type;
     //TODO:image
 }

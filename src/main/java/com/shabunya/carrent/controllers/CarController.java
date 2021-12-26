@@ -1,6 +1,7 @@
 package com.shabunya.carrent.controllers;
 
 import com.shabunya.carrent.dto.CarDTOAll;
+import com.shabunya.carrent.dto.CarUpdateDTO;
 import com.shabunya.carrent.dto.MakeOrderDTO;
 import com.shabunya.carrent.exception.ControllerException;
 import com.shabunya.carrent.model.Car;
@@ -14,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Date;
@@ -52,6 +50,37 @@ public class CarController {
             throw new ControllerException(e);
         }
 
+    }
+
+    @PostMapping("/admin/updateCar")
+    public ResponseEntity<?> updateCar(@RequestBody CarUpdateDTO newCar){
+        Car car = carService.getCarById(newCar.getCarId());
+        car.setCarName(newCar.getCarName());
+        car.setType(newCar.getType());
+        car.setCostPerDay(newCar.getCostPerDay());
+        carService.save(car);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/admin/addCar")
+    public ResponseEntity<?> addCar(@RequestBody CarDTOAll carToAdd){
+
+        Car car = Car.builder()
+                .carName(carToAdd.getCarName())
+                .costPerDay(carToAdd.getCostPerDay())
+                .type(carToAdd.getType())
+                .build();
+        carService.save(car);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/admin/deleteCar/{id}")
+    public ResponseEntity<?> deleteCar(@PathVariable(name="id")Long Id){
+
+        carService.deleteCar(Id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

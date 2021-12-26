@@ -1,5 +1,6 @@
 package com.shabunya.carrent.dto;
 
+import com.shabunya.carrent.model.CarTypes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,6 @@ import java.math.BigDecimal;
 @Builder
 public class CarDTOAll{
     public String carName;
-    public String type;
+    public CarTypes type;
     public BigDecimal costPerDay;
 }
