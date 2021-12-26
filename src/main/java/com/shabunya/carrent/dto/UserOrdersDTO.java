@@ -1,5 +1,6 @@
 package com.shabunya.carrent.dto;
 
+import com.shabunya.carrent.model.Order_Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +14,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class UserOrdersDTO {
+    public Long orderId;
     public String carName;
     public String carType;
     public LocalDate dateRentStart;
     public LocalDate dateRentEnd;
+    public BigDecimal costPerDay;
     public BigDecimal sumRentCost;
+    public Order_Status status;
 }

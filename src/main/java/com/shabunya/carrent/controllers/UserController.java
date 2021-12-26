@@ -49,11 +49,14 @@ public class UserController {
         List<UserOrdersDTO> userOrders = new ArrayList<>();
         for(Order order : orders){
             UserOrdersDTO orderToAdd = UserOrdersDTO.builder()
+                    .orderId(order.getOrder_id())
                     .carName(order.getCar().getCarName())
                     .carType(order.getCar().getType())
                     .dateRentEnd(order.getDateEnd().toLocalDate())
                     .dateRentStart(order.getDateStart().toLocalDate())
+                    .status(order.getStatus())
                     .sumRentCost(order.getSumrentcost())
+                    .costPerDay(order.getCar().getCostPerDay())
                     .build();
             userOrders.add(orderToAdd);
         }
@@ -93,10 +96,6 @@ public class UserController {
         }
     }
 
-    @GetMapping("/getUU")
-    public void tested(){
-        System.out.println("TESTED");
-    }
 
 
 

@@ -95,6 +95,14 @@ public class MainController {
         return modelAndView;
     }
 
+    //TODO: Bill system
+    //TODO: Search and Filter
+    //TODO: Email send
+
+    //TODO: @ControllerAdvice??
+    //TODO:Log4j
+    //TODO:JUnit
+
 
 
 }

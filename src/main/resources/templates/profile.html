@@ -3,7 +3,28 @@
 <head>
     <script th:src="@{../js/profile.js}"></script>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Profile</title>
+    <style>
+        #popUp{
+            width:100%;
+            min-height:100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow:hidden;
+            position:fixed;
+            top:0px;
+            visibility: hidden;
+
+        }
+        #popUp #popUp_content{
+            margin:40px auto 0px auto;
+            width:420px;
+            height: 90px;
+            padding:10px;
+            background-color: #c5c5c5;
+            border-radius:5px;
+            box-shadow: 0px 0px 10px #000;
+        }
+    </style>
 </head>
 <body>
 <!DOCTYPE html>
@@ -20,14 +41,35 @@
 <div id="profile_info">
 
 </div>
+<div id="popUp">
+    <div id="popUp_content">
+        <tr>
+            <td>
+
+            </td>
+            <td>
+                <input type="date" id="newRentDate">
+                <button onclick="updateRentDate()">Renew rent</button>
+                <br>
+                <button onclick="popUpHide()">Close</button>
+            </td>
+        </tr>
+    </div>
+</div>
 <div class="orders_container">
     <table>
         <tr>
+            <td>
+                <h2>Order status</h2>
+            </td>
             <td>
                 <h2>Car Name</h2>
             </td>
             <td>
                 <h2>Type</h2>
+            </td>
+            <td>
+                <h2>Rent cost per day</h2>
             </td>
             <td>
                 <h2>Date Start</h2>
@@ -40,11 +82,22 @@
             </td>
         </tr>
         <tr th:each="order : ${orders}">
-            <td th:text="${order.carName}"></td>
-            <td th:text="${order.carType}"></td>
-            <td th:text="${order.dateRentStart}"></td>
-            <td th:text="${order.dateRentEnd}"></td>
-            <td th:text="${order.sumRentCost}"></td>
+            <div th:if="${order.status.toString()!='Deleted'}">
+                <td th:switch="${order.status.toString()}">
+                    <span th:case="'Rent_End'">Rent End</span>
+                    <span th:case="'Active'">Active</span>
+                    <span th:case="'Rent_End_Before_Start'">Rent not started</span>
+                </td>
+                <td th:text="${order.carName}"></td>
+                <td th:text="${order.carType}"></td>
+                <td th:text="${order.costPerDay}"></td>
+                <td th:text="${order.dateRentStart}"></td>
+                <td th:text="${order.dateRentEnd}"></td>
+                <td th:text="${order.sumRentCost}"></td>
+                <td th:if="${order.status.toString() == 'Active'}"><button th:attr="onclick=|popUpShow(${order.orderId},'${order.dateRentStart}','${order.dateRentEnd}',${order.costPerDay})|">Renew Rent</button></td>
+                <td th:if="${order.status.toString() == 'Active'}"><button th:attr="onclick=|endRent(${order.orderId},'${order.dateRentStart}',${order.costPerDay})|">End rent</button></td>
+                <td th:if="${order.status.toString() == 'Rent_End' || order.status.toString() == 'Rent_End_Before_Start'}"><button th:attr="onclick=|deleteRent(${order.orderId})|">Delete Rent</button></td>
+            </div>
         </tr>
     </table>
 </div>

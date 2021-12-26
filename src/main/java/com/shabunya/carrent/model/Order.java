@@ -40,4 +40,7 @@ public class Order {
     private User user;
 
     private BigDecimal sumrentcost;
+
+    @Enumerated
+    private Order_Status status;
 }

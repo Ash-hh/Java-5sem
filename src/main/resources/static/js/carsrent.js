@@ -4,8 +4,15 @@ let curUrl =  document.URL.split('/')
 let carId = curUrl[4]
 let carCostPerDay;
 
+
+
+
+
+
+
+
 function carRentPageOnload(){
-    console.log(token);
+
     fetch(`/getrentcar/${carId}`,{
         method:'GET',
         headers:{'Authorization': `Bearer ${token}`}
@@ -51,10 +58,10 @@ async function sendRentRequest(){
 function costCalculate(){
     let start = Date.parse(document.getElementById("RentStart").value);
     let end = Date.parse(document.getElementById("RentEnd").value);
-    console.log(start,end);
+
     let timeDiff = Math.abs(end - start);
     let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    console.log(diffDays);
+
 
     return diffDays == 0 ? carCostPerDay : diffDays * carCostPerDay;
 
