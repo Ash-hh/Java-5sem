@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Service
 public interface OrderService {
+    List<Order> getAllOrders();
     boolean deleteOrder(Long orderId);
     Order updateOrder(Order order);
     Optional<Order> findById(Long OrderId);

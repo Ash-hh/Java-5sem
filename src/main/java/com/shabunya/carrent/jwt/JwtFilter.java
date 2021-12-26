@@ -13,8 +13,13 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+
 
 import static org.springframework.util.StringUtils.hasText;
 
@@ -48,7 +53,17 @@ public class JwtFilter extends GenericFilterBean {
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
+
         String bearer = request.getHeader(AUTHORIZATION);
+        if(!hasText(bearer)){
+            Cookie [] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    bearer ="Bearer ";
+                    bearer += cookie.getValue();
+                }
+            }
+        }
         if (hasText(bearer) && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
