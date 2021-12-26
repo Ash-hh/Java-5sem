@@ -18,13 +18,8 @@ public class CarServiceImpl implements CarService{
     }
 
     @Override
-    public boolean save(CarDTOAll carDTOAll) {
+    public boolean save(Car car) {
 
-        Car car = Car.builder()
-                .carName(carDTOAll.getCarName())
-                .costPerDay(carDTOAll.getCostPerDay())
-                .type(carDTOAll.getType())
-                .build();
         carRepository.save(car);
         return true;
     }
@@ -37,6 +32,11 @@ public class CarServiceImpl implements CarService{
     @Override
     public Car getCarById(Long id){
         return carRepository.getById(id);
+    }
+
+    @Override
+    public void deleteCar(Long id) {
+        carRepository.deleteById(id);
     }
 
 

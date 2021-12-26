@@ -8,6 +8,8 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    void deleteById(Long Long);
     User findByLogin(String login);
     List<User> findAll();
     boolean existsUserByLogin(String login);

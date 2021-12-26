@@ -36,7 +36,9 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user)
     {
         UserRole userRole = userRoleRepository.findByName(Role.ROLE_USER);
-        user.setUserRole(userRole);
+        if(user.getUserRole() == null){
+            user.setUserRole(userRole);
+        }
         user.setPassword(user.getPassword());
         return userRepository.save(user);
     }
@@ -67,6 +69,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long id){
         return userRepository.getById(id);
+    }
+
+    @Override
+    public UserRole getRoleByName(Role role){
+        return userRoleRepository.findByName(role);
+    }
+
+    @Override
+    public void deleteUser(Long Id) {
+        userRepository.deleteById(Id);
     }
 
 }

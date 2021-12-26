@@ -1,11 +1,15 @@
 package com.shabunya.carrent.controllers;
 
 
+import com.shabunya.carrent.dto.AdminUserUpdateDTO;
 import com.shabunya.carrent.dto.UserOrdersDTO;
 import com.shabunya.carrent.dto.UserProfileInfoDTO;
+import com.shabunya.carrent.dto.UserUpdateDTO;
 import com.shabunya.carrent.exception.ControllerException;
+import com.shabunya.carrent.jwt.JwtFilter;
 import com.shabunya.carrent.jwt.JwtProvider;
 import com.shabunya.carrent.model.Order;
+import com.shabunya.carrent.model.Role;
 import com.shabunya.carrent.model.User;
 import com.shabunya.carrent.services.OrderService;
 import com.shabunya.carrent.services.UserService;
@@ -21,8 +25,7 @@ import javax.sql.rowset.serial.SerialException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
-
+@RestController
 public class UserController {
 
     @Autowired
@@ -35,10 +38,14 @@ public class UserController {
     private JwtProvider jwtProvider;
 
     @Autowired
-    public UserController(UserService userService, OrderService orderService, JwtProvider jwtProvider) {
+    private JwtFilter jwtFilter;
+
+    @Autowired
+    public UserController(JwtFilter jwtFilter, UserService userService, OrderService orderService, JwtProvider jwtProvider) {
         this.userService = userService;
         this.orderService = orderService;
         this.jwtProvider = jwtProvider;
+        this.jwtFilter = jwtFilter;
     }
 
 
@@ -82,6 +89,7 @@ public class UserController {
                         .name(user.getName())
                         .surname(user.getSurname())
                         .email(user.getEmail())
+                        .balance(user.getBalance())
                         .userRole(user.getUserRole().getName().name())
                         .build();
                 return new ResponseEntity<>(userProfileInfoDTO,HttpStatus.OK);
@@ -94,6 +102,42 @@ public class UserController {
 
             throw new ControllerException("getUser", e);
         }
+    }
+
+
+    @PutMapping("/admin/updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody AdminUserUpdateDTO adminUserUpdateDTO){
+
+        User user = userService.findById(adminUserUpdateDTO.getUserId());
+
+        if(adminUserUpdateDTO.getNewRole() != null){
+            user.setUserRole(userService.getRoleByName(adminUserUpdateDTO.getNewRole()));
+        } else {
+            user.setActive(adminUserUpdateDTO.isNewActivity());
+        }
+
+        userService.saveUser(user);
+
+        return  new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/admin/deleteUser/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable(name="id")Long id){
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/user/userUpdate")
+    public ResponseEntity<?> userUpdateUser(@RequestBody UserUpdateDTO userUpdateDTO){
+
+
+        User user = userService.findByLogin(jwtFilter.getCurrentUserLogin());
+
+        user.setBalance(userUpdateDTO.getNewBalance());
+
+        userService.saveUser(user);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

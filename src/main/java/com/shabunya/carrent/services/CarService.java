@@ -8,7 +8,8 @@ import java.util.List;
 
 @Service
 public interface CarService {
-    boolean save(CarDTOAll carDTOAll) ;
+    boolean save(Car car) ;
     List<Car> getAll();
     Car getCarById(Long id);
+    void deleteCar(Long id);
 }
