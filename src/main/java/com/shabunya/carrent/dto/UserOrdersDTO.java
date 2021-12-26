@@ -1,5 +1,6 @@
 package com.shabunya.carrent.dto;
 
+import com.shabunya.carrent.model.CarTypes;
 import com.shabunya.carrent.model.Order_Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 public class UserOrdersDTO {
     public Long orderId;
     public String carName;
-    public String carType;
+    public CarTypes carType;
     public LocalDate dateRentStart;
     public LocalDate dateRentEnd;
     public BigDecimal costPerDay;

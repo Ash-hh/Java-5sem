@@ -15,7 +15,10 @@ function profileOnLoad(){
                 <p>Name: ${data.name}</p>
                 <p>Surname: ${data.surname}</p>
                 <p>Email: ${data.email}</p>
+                <p>Balance: ${data.balance}</p>
+                <a onclick="PopUpBalanceShow()">Top Up</a>
             `
+            newBalance.value = data.balance;
     });
 }
 let orderInfo;
@@ -29,7 +32,27 @@ function popUpShow(orderId,dateStart,dateEnd,costPerDay){
         dateStart:dateStart,
         costPerDay:costPerDay
     }
-    popUp.style.visibility = "visible"
+    popUpRent.style.visibility = "visible"
+}
+
+function PopUpBalanceShow(){
+    PopUpBalance.style.visibility = "visible"
+}
+
+function updateBalance(){
+
+    fetch("/user/userUpdate",{
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            newBalance:newBalance.value
+        })
+    }).then(result=>{
+        if(result.ok){
+            window.location.replace(document.URL)
+        }
+    })
+
 }
 
 function popUpHide(){

@@ -18,6 +18,7 @@ async function login() {
         let body = await result.text();
         let info = JSON.parse(body);
         localStorage.setItem('token', info['token']);
+        document.cookie= `token=${info['token']}`;
         window.location.replace(window.location.origin);
     } else {
         mes.innerHTML = 'Error occured';
@@ -27,5 +28,8 @@ async function login() {
 function loginOnload(){
     if(localStorage.getItem('token')){
         localStorage.removeItem('token');
+    }
+    if(document.cookie){
+        document.cookie = 'token="";max-age=-1'
     }
 }

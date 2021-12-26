@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 
@@ -48,4 +49,7 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private UserRole userRole;
+
+    @Column
+    private BigDecimal balance;
 }

@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.rowset.serial.SerialException;
+import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 @RestController
 public class OrderController {
@@ -55,8 +57,35 @@ public class OrderController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @GetMapping("/admin/endRent/{orderId}")
+    public ResponseEntity<?> endRentByAdmin(@PathVariable(name = "orderId")Long orderId){
+        Order order = orderService.findById(orderId).get();
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-mm-dd");
+
+        Date dateToday=new Date(System.currentTimeMillis());
+
+        long today = System.currentTimeMillis();
+        long notToday = order.getDateStart().getTime();
+
+        if(dateToday.getTime() < order.getDateStart().getTime()){
+            order.setStatus(Order_Status.Rent_End_Before_Start);
+            order.setSumrentcost(BigDecimal.valueOf(0));
+        } else {
+            long timeDiff =  dateToday.getTime() - order.getDateStart().getTime();
+            long dayDiff = timeDiff / (1000 * 3600 * 24);
+            order.setSumrentcost(BigDecimal.valueOf(dayDiff).multiply(order.getCar().getCostPerDay()));
+            order.setStatus(Order_Status.Rent_End);
+        }
+
+        orderService.updateOrder(order);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
     @DeleteMapping("/admin/deleteOrder/{id}")
     public ResponseEntity<?> deleteUserOrder(@PathVariable(name="id")Long id){
+        orderService.deleteOrder(id);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
