@@ -3,6 +3,7 @@ package com.shabunya.carrent.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -33,4 +34,9 @@ public class Car {
     @Enumerated
     private CarTypes type;
     //TODO:image
+
+
+    @Lob
+    @Column(columnDefinition="MEDIUMBLOB")
+    private byte[] carImage;
 }

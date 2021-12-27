@@ -12,17 +12,19 @@ import com.shabunya.carrent.services.UserService;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Date;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.IntToLongFunction;
 
 @RestController
@@ -62,13 +64,32 @@ public class CarController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/admin/addCar")
-    public ResponseEntity<?> addCar(@RequestBody CarDTOAll carToAdd){
+    @PostMapping( value = "/admin/addCar")
+    public ResponseEntity<?> addCar(@RequestBody CarDTOAll carToAdd) throws IOException {
+
+       /* Tested: Check picture after download
+
+        try{
+            File image = new File("src\\main\\resources\\static\\img\\" + carToAdd.CarImage.getName());
+            if(image.exists()){
+                image = new File("src\\main\\resources\\static\\img\\"+ UUID.randomUUID().toString()+carToAdd.CarImage.getName());
+            }
+            image.createNewFile();
+
+            FileOutputStream output = new FileOutputStream(image.getAbsolutePath());
+
+            output.write(Base64.getDecoder().decode(carToAdd.getCarImage().getBase64().getBytes()));
+
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
 
         Car car = Car.builder()
                 .carName(carToAdd.getCarName())
                 .costPerDay(carToAdd.getCostPerDay())
                 .type(carToAdd.getType())
+                .carImage(Base64.getDecoder().decode(carToAdd.getCarImage().getBase64().getBytes()))
                 .build();
         carService.save(car);
 

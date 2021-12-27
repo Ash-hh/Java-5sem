@@ -1,6 +1,7 @@
 package com.shabunya.carrent.services;
 
 
+import com.shabunya.carrent.model.Order;
 import com.shabunya.carrent.model.Role;
 import com.shabunya.carrent.model.User;
 import com.shabunya.carrent.model.UserRole;
@@ -20,5 +21,8 @@ public interface UserService { //security
     boolean existsUserByLoginAndPassword(String login, String password);
     UserRole getRoleByName(Role role);
     void deleteUser(Long Id);
+    boolean updateUserAfterRentEnd(Order order);
+    void updateUserAfterRentEndAdmin(Order order);
+    boolean activateUser(String code);
 
 }

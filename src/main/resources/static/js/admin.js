@@ -106,15 +106,23 @@ function EditCar(){
     })
 }
 
-function carAdd(){
+async function carAdd(){
     let form = document.forms.CarAddForm;
+    let carImage = form.image.files[0];
+    await fileEncode(carImage);
     fetch('/admin/addCar',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
             carName:form.CarName.value,
             type:form.type.value,
-            costPerDay:form.CarCost.value
+            costPerDay:form.CarCost.value,
+            carImage:{
+                base64:await toBase64(carImage),
+                name: carImage.name,
+                lastModified:carImage.lastModified,
+                type:carImage.type
+            }
         })
     }).then(result=>{
         if(result.ok){
@@ -122,7 +130,30 @@ function carAdd(){
             window.location.replace(document.URL);
         }
     })
+
+
+
 }
+let base64String
+function fileEncode(file){
+    var reader = new FileReader();
+    reader.onload = function () {
+        base64String = reader.result.replace("data:", "")
+            .replace(/^.+,/, "");
+
+        imageBase64Stringsep = base64String;
+    }
+    reader.readAsDataURL(file);
+}
+
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.replace("data:", "")
+        .replace(/^.+,/, ""));
+    reader.onerror = error => reject(error);
+});
+
 
 function DeleteCar(carId){
     if(confirm('You cant rollback delete, are you sure?')){

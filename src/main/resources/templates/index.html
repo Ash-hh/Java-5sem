@@ -13,6 +13,9 @@
        <table>
            <tr>
                <td>
+                    Image
+               </td>
+               <td>
                    <h2>Car Name</h2>
                </td>
                <td>
@@ -23,6 +26,9 @@
                </td>
            </tr>
            <tr th:each="car : ${cars}">
+               <td>
+                   <img th:src="*{'data:image/jpeg;base64,'+car.carImage}" alt="" height="200" width="200"/>
+               </td>
                <td th:text="${car.carName}"></td>
                <td th:text="${car.costPerDay}"></td>
                <td th:text="${car.type}"></td>

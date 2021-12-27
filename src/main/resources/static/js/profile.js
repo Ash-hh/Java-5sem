@@ -94,7 +94,7 @@ function endRent(orderId,dateRentStart,costPerDay){
 
     let newSumRentCost
     let status='Rent_End'
-    if(Date.parse(today) > Date.parse(dateRentStart)){
+    if(Date.parse(today) > Date.parse(dateRentStart) || Date.parse(today) == Date.parse(dateRentStart) ){
         let timeDiff = Math.abs(Date.parse(today) - Date.parse(dateRentStart));
         let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
@@ -116,6 +116,8 @@ function endRent(orderId,dateRentStart,costPerDay){
     }).then(result=>{
         if(result.ok){
             window.location.replace(document.URL);
+        } else {
+            alert('Rent Not ended!')
         }
     })
 

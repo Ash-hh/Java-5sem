@@ -58,6 +58,9 @@
                 <select  name="type">
                     <option th:each="type : ${tables.type}" th:value="${type}" th:name="${type}" th:text="${type}"></option>
                 </select>
+                <p>
+                    <input type="file" name="image" >
+                </p>
             </form>
             <button onclick="carAdd()">Add</button>
             <button onclick="PopUpHide()">Close</button>

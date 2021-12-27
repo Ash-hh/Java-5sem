@@ -1,9 +1,8 @@
 package com.shabunya.carrent.services;
 
 
-import com.shabunya.carrent.model.Role;
-import com.shabunya.carrent.model.User;
-import com.shabunya.carrent.model.UserRole;
+import com.shabunya.carrent.model.*;
+import com.shabunya.carrent.repository.OrderRepository;
 import com.shabunya.carrent.repository.UserRepository;
 
 import com.shabunya.carrent.repository.UserRoleRepository;
@@ -15,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +26,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
 
     public UserServiceImpl(UserRepository userRepository,UserRoleRepository userRoleRepository){
         this.userRepository = userRepository;
@@ -38,6 +40,7 @@ public class UserServiceImpl implements UserService {
         UserRole userRole = userRoleRepository.findByName(Role.ROLE_USER);
         if(user.getUserRole() == null){
             user.setUserRole(userRole);
+            user.setBalance(BigDecimal.valueOf(0));
         }
         user.setPassword(user.getPassword());
         return userRepository.save(user);
@@ -78,7 +81,52 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long Id) {
+        User user = userRepository.getById(Id);
+        List<Order> orders= orderRepository.findAllByUser(user);
+        orderRepository.deleteAll(orders);
         userRepository.deleteById(Id);
+    }
+
+    @Override
+    public boolean updateUserAfterRentEnd(Order order) {
+        if(order.getStatus() == Order_Status.Rent_End){
+            User user = userRepository.getById(order.getUser().getUser_id());
+            if(user.getBalance().compareTo(order.getSumrentcost())==1){
+                user.setBalance(user.getBalance().subtract(order.getSumrentcost()));
+
+                userRepository.save(user);
+
+                return true;
+
+            } else  {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void updateUserAfterRentEndAdmin(Order order) {
+        User user = userRepository.getById(order.getUser().getUser_id());
+        user.setBalance(user.getBalance().subtract(order.getSumrentcost()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public boolean activateUser(String code) {
+
+        User user = userRepository.findByActivationCode(code);
+
+        if (user == null) {
+            user.setActive(false);
+            return false;
+        }
+
+        user.setActivationCode(null);
+        user.setActive(true);
+        userRepository.save(user);
+
+        return true;
     }
 
 }

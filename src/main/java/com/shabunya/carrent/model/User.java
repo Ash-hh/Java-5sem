@@ -50,6 +50,8 @@ public class User {
     @JoinColumn(name = "role_id")
     private UserRole userRole;
 
+    private String activationCode;
+
     @Column
     private BigDecimal balance;
 }

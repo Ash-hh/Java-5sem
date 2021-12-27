@@ -133,7 +133,7 @@ public class UserController {
 
         User user = userService.findByLogin(jwtFilter.getCurrentUserLogin());
 
-        user.setBalance(userUpdateDTO.getNewBalance());
+        user.setBalance(user.getBalance().add(userUpdateDTO.getNewBalance()));
 
         userService.saveUser(user);
 
