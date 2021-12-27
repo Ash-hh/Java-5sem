@@ -111,6 +111,9 @@
 
                 </tr>
                 <tr th:each="car : ${tables.allCars}">
+                    <td>
+                        <img th:src="*{'data:image/jpeg;base64,'+car.carImage}" alt="" height="100" width="100"/>
+                    </td>
                     <td th:text="${car.carName}"></td>
                     <td th:text="${car.costPerDay}"></td>
                     <td th:text="${car.type}"></td>

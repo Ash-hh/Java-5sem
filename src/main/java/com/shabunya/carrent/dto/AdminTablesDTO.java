@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class AdminTablesDTO {
     public List<Order> allOrder;
-    public List<Car> allCars;
+    public List<CarsToIndexDTO> allCars;
     public List<User> allUsers;
     public List<CarTypes> type;
     public List<Order_Status> statuses;

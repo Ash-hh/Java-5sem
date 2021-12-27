@@ -135,6 +135,7 @@ public class MainController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("index");
         List<Car> cars = carService.getAll();
+        List<CarTypes> carTypes = Arrays.asList(CarTypes.values());
         List<CarsToIndexDTO> carsToUpload = new ArrayList<>();
         for(Car car : cars){
 
@@ -146,6 +147,7 @@ public class MainController {
                     .carImage(Base64.getEncoder().encodeToString(car.getCarImage()))
                     .build());
         }
+        model.addAttribute("carTypes",carTypes);
         model.addAttribute("cars",carsToUpload);
         return modelAndView;
     }
@@ -162,8 +164,19 @@ public class MainController {
         users = userService.findAll();
         cars = carService.getAll();
         orders = orderService.getAllOrders();
+        List<CarsToIndexDTO> carsToUpload = new ArrayList<>();
+        for(Car car : cars){
+
+            carsToUpload.add(CarsToIndexDTO.builder()
+                    .carName(car.getCarName())
+                    .costPerDay(car.getCostPerDay())
+                    .type(car.getType())
+                    .car_id(car.getCar_id())
+                    .carImage(Base64.getEncoder().encodeToString(car.getCarImage()))
+                    .build());
+        }
         AdminTablesDTO tables = new AdminTablesDTO();
-        tables.setAllCars(cars);
+        tables.setAllCars(carsToUpload);
         tables.setAllOrder(orders);
         tables.setAllUsers(users);
         tables.setType(types);

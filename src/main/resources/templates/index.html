@@ -10,7 +10,13 @@
 
    </header>
    <div class="car_container">
-       <table>
+       <div id="filter">
+           Filter:
+           <select  id="filterSelect" onchange="filterChange()">
+               <option th:each="type : ${carTypes}" th:value="${type}" th:name="${type}" th:text="${type}"></option>
+           </select>
+       </div>
+       <table id="carsTable">
            <tr>
                <td>
                     Image
@@ -27,7 +33,7 @@
            </tr>
            <tr th:each="car : ${cars}">
                <td>
-                   <img th:src="*{'data:image/jpeg;base64,'+car.carImage}" alt="" height="200" width="200"/>
+                   <img th:src="*{'data:image/jpeg;base64,'+car.carImage}" alt="" height="120" width="120"/>
                </td>
                <td th:text="${car.carName}"></td>
                <td th:text="${car.costPerDay}"></td>
