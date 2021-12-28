@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.rowset.serial.SerialException;
@@ -42,7 +43,7 @@ public class OrderController {
 
     //TODO:Date Validation
     @PostMapping("/makeorder")
-    public ResponseEntity<?> makeOrderForRent(@RequestBody MakeOrderDTO makeOrderDTO,  BindingResult bindingResult) throws ControllerException, SerialException {
+    public ResponseEntity<?> makeOrderForRent(@RequestBody @Validated MakeOrderDTO makeOrderDTO, BindingResult bindingResult) throws ControllerException, SerialException {
 
         try{
 

@@ -54,7 +54,7 @@ function updateBalance(){
 }
 
 function popUpHide(){
-    popUp.style.visibility = "hidden";
+    PopUpBalance.style.visibility = "hidden";
 }
 
 function updateRentDate(){
