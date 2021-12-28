@@ -9,6 +9,7 @@ import com.shabunya.carrent.repository.CarRepository;
 import com.shabunya.carrent.services.CarService;
 import com.shabunya.carrent.services.CarServiceImpl;
 import com.shabunya.carrent.services.UserService;
+import org.apache.log4j.Logger;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,32 +41,42 @@ public class CarController {
     }
 
 
+    private static final Logger logger = Logger.getLogger(CarController.class);
+
     @GetMapping("/getrentcar/{id}") //get car for rent by id
     public ResponseEntity<?> rentCar(@PathVariable(name="id")Long id) throws ControllerException {
         Car car = null;
         try{
             car = carService.getCarById(id);
 
-            System.out.println(car);
             return new ResponseEntity<>(car, HttpStatus.OK);
         } catch(ServiceException e){
+            logger.error(e.getMessage());
             throw new ControllerException(e);
         }
 
     }
 
     @PostMapping("/admin/updateCar")
-    public ResponseEntity<?> updateCar(@RequestBody CarUpdateDTO newCar){
-        Car car = carService.getCarById(newCar.getCarId());
-        car.setCarName(newCar.getCarName());
-        car.setType(newCar.getType());
-        car.setCostPerDay(newCar.getCostPerDay());
-        carService.save(car);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> updateCar(@RequestBody CarUpdateDTO newCar) throws ControllerException {
+        try{
+            Car car = carService.getCarById(newCar.getCarId());
+            car.setCarName(newCar.getCarName());
+            car.setType(newCar.getType());
+            car.setCostPerDay(newCar.getCostPerDay());
+            carService.save(car);
+
+            logger.debug("update car: "+car.getCarName() + " id: "+car.getCar_id().toString());
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e.getMessage(),e);
+        }
     }
 
     @PostMapping( value = "/admin/addCar")
-    public ResponseEntity<?> addCar(@RequestBody CarDTOAll carToAdd) throws IOException {
+    public ResponseEntity<?> addCar(@RequestBody CarDTOAll carToAdd) throws IOException, ControllerException {
 
        /* Tested: Check picture after download
 
@@ -85,23 +96,36 @@ public class CarController {
             e.printStackTrace();
         }*/
 
-        Car car = Car.builder()
-                .carName(carToAdd.getCarName())
-                .costPerDay(carToAdd.getCostPerDay())
-                .type(carToAdd.getType())
-                .carImage(Base64.getDecoder().decode(carToAdd.getCarImage().getBase64().getBytes()))
-                .build();
-        carService.save(car);
+        try{
+            Car car = Car.builder()
+                    .carName(carToAdd.getCarName())
+                    .costPerDay(carToAdd.getCostPerDay())
+                    .type(carToAdd.getType())
+                    .carImage(Base64.getDecoder().decode(carToAdd.getCarImage().getBase64().getBytes()))
+                    .build();
+            carService.save(car);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+            logger.debug("add car: "+car.toString());
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e.getMessage(),e);
+        }
     }
 
     @DeleteMapping("/admin/deleteCar/{id}")
-    public ResponseEntity<?> deleteCar(@PathVariable(name="id")Long Id){
+    public ResponseEntity<?> deleteCar(@PathVariable(name="id")Long Id) throws ControllerException {
+        try{
+            carService.deleteCar(Id);
 
-        carService.deleteCar(Id);
+            logger.debug("delete car: "+Id.toString());
 
-        return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e.getMessage(),e);
+        }
     }
 
 

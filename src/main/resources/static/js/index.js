@@ -13,19 +13,28 @@ function indexOnLoadFunc(){
             }).then(data=>{
                 console.log(data);
                 index_header.innerHTML=`
-                    <a href="/loginin">Log Out</a>
-                    <a href="/profile/${data.login}">Profile</a>`
+                    <ul class="menu-main">
+                        <li> <a href="/loginin">Log Out</a> </li>
+                        <li> <a href="/profile/${data.login}">Profile</a> </li>  
+                        ${data.userRole == 'ROLE_ADMIN' ? '<li> <a href="admin/adminpage/NoTable">Admin</a></li>': ""}                      
+                    </ul>`
 
-                if(data.userRole == 'ROLE_ADMIN'){
-                    index_header.innerHTML+=` <a href="admin/adminpage/NoTable">Admin</a>`
-                }
                 originRows = Array.from(document.getElementById("carsTable").rows);
 
                 console.log(document.getElementById("carsTable"));
             });
     } else {
 
-        index_header.innerHTML='<a href="/loginin">Login</a> <a href="/registration">Registration</a>'
+        index_header.innerHTML=`
+            <ul class="menu-main">
+            <li>
+                <a href="/loginin">Login</a>
+            </li>
+            </li>
+            <li>
+                <a href="/registration">Registration</a>
+            </li>`
+
 
 
     }
@@ -47,26 +56,40 @@ function openAdminPage(){
 
 //очень стыдно, но как есть;
 function filterChange(){
-    
-    let selectedType = filterSelect.value;
-    let arr = Array.prototype.slice.call(originRows);
+
+    let firstRow = document.createElement("tr");
+
+    firstRow.insertCell().innerHTML = ' <h3>Image</h3>';
+    firstRow.insertCell().innerHTML = ' <h3>Car Name</h3>';
+    firstRow.insertCell().innerHTML = ' <h3>Type</h3>';
+    firstRow.insertCell().innerHTML = ' <h3>Cost per day</h3>';
+
     let newRows = [];
-    arr.forEach(element=>{
-        if(element.children[3].innerText == selectedType){
-
-            newRows.push(element);
-        }
-    })
+    newRows.push(firstRow)
     let table = document.getElementById("carsTable");
+    let selectedType = filterSelect.value;
+    if(selectedType != 'All'){
+        let arr = Array.prototype.slice.call(originRows);
 
-    let rows = table.rows.length;
-    for(let i = 0;i<rows;i++){
-        table.deleteRow(0);
+        arr.forEach(element=>{
+            if(element.children[2].innerText == selectedType){
+
+                newRows.push(element);
+            }
+        })
+
+        let rows = table.rows.length;
+        for(let i = 0;i<rows;i++){
+            table.deleteRow(0);
+        }
+    } else {
+        newRows = originRows;
     }
 
     newRows.forEach((element,index)=>{
         table.insertRow(index).append(element);
     })
+
 
 
 

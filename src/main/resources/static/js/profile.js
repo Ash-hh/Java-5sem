@@ -11,12 +11,10 @@ function profileOnLoad(){
         }).then(data=>{
             profile_info.innerHTML=`
                 <p>Account Status: ${data.userRole == 'ROLE_ADMIN' ? 'Admin' : 'User'}</p>
-                <p>Login: ${data.login} </p>
-                <p>Name: ${data.name}</p>
-                <p>Surname: ${data.surname}</p>
-                <p>Email: ${data.email}</p>
+                <p>Login: ${data.login}, Email: ${data.email}</p>
+                <p>Name: ${data.name}, Surname: ${data.surname}</p>               
                 <p>Balance: ${data.balance}</p>
-                <a onclick="PopUpBalanceShow()">Top Up</a>
+                <p><a class="underline" onclick="PopUpBalanceShow(); return false ">Top Up</a></p>
             `
             newBalance.value = data.balance;
     });

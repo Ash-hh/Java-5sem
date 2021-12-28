@@ -8,9 +8,12 @@ import com.shabunya.carrent.model.Order;
 import com.shabunya.carrent.model.Order_Status;
 import com.shabunya.carrent.services.OrderService;
 import com.shabunya.carrent.services.UserService;
+import com.shabunya.carrent.validator.RentValidator;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.rowset.serial.SerialException;
@@ -20,6 +23,9 @@ import java.text.SimpleDateFormat;
 
 @RestController
 public class OrderController {
+
+    @Autowired
+    private RentValidator rentValidator;
 
     @Autowired
     private static OrderService orderService;
@@ -32,75 +38,110 @@ public class OrderController {
         this.userService = userService;
     }
 
+    private static final Logger logger = Logger.getLogger(OrderController.class);
+
     //TODO:Date Validation
     @PostMapping("/makeorder")
-    public ResponseEntity<?> makeOrderForRent(@RequestBody MakeOrderDTO makeOrderDTO) throws ControllerException, SerialException {
+    public ResponseEntity<?> makeOrderForRent(@RequestBody MakeOrderDTO makeOrderDTO,  BindingResult bindingResult) throws ControllerException, SerialException {
 
-        orderService.createOrder(makeOrderDTO, JwtFilter.getCurrentUserLogin());
+        try{
 
-        return new ResponseEntity<>(HttpStatus.OK);
+            rentValidator.validate(makeOrderDTO,bindingResult);
+            if(bindingResult.hasErrors()) throw new ControllerException("not correct data");
+
+            orderService.createOrder(makeOrderDTO, JwtFilter.getCurrentUserLogin());
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e);
+        }
     }
 
     @PutMapping("/user/updateOrder")
-    public ResponseEntity<?> updateUserOrder(@RequestBody RentUpdateDTO rentUpdateDTO){
-        Order order = orderService.findById(rentUpdateDTO.orderId).get();
-        if(rentUpdateDTO.newStatus != null && rentUpdateDTO.newStatus != Order_Status.Deleted){
-            order.setStatus(rentUpdateDTO.newStatus);
-            order.setSumrentcost(rentUpdateDTO.getNewRentCost());
-            order.setDateEnd(Date.valueOf(rentUpdateDTO.getNewRentDateEnd()));
-            if(rentUpdateDTO.newStatus != Order_Status.Rent_End_Before_Start){
-                if(!userService.updateUserAfterRentEnd(order)){
-                    return new ResponseEntity<>(HttpStatus.PAYMENT_REQUIRED);
+    public ResponseEntity<?> updateUserOrder(@RequestBody RentUpdateDTO rentUpdateDTO) throws ControllerException {
+
+        try{
+            Order order = orderService.findById(rentUpdateDTO.orderId).get();
+            if(rentUpdateDTO.newStatus != null && rentUpdateDTO.newStatus != Order_Status.Deleted){
+                order.setStatus(rentUpdateDTO.newStatus);
+                order.setSumrentcost(rentUpdateDTO.getNewRentCost());
+                order.setDateEnd(Date.valueOf(rentUpdateDTO.getNewRentDateEnd()));
+                if(rentUpdateDTO.newStatus != Order_Status.Rent_End_Before_Start){
+                    if(!userService.updateUserAfterRentEnd(order)){
+                        return new ResponseEntity<>(HttpStatus.PAYMENT_REQUIRED);
+                    }
+                }
+            } else {
+                if(rentUpdateDTO.newStatus == Order_Status.Deleted){
+                    order.setStatus(rentUpdateDTO.newStatus);
+                } else {
+                    order.setDateEnd(Date.valueOf(rentUpdateDTO.newRentDateEnd));
+                    order.setSumrentcost(rentUpdateDTO.getNewRentCost());
                 }
             }
-        } else {
-            if(rentUpdateDTO.newStatus == Order_Status.Deleted){
-                order.setStatus(rentUpdateDTO.newStatus);
-            } else {
-                order.setDateEnd(Date.valueOf(rentUpdateDTO.newRentDateEnd));
-                order.setSumrentcost(rentUpdateDTO.getNewRentCost());
-            }
+
+            orderService.updateOrder(order);
+
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e);
         }
-
-        orderService.updateOrder(order);
-
-        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping("/admin/endRent/{orderId}")
-    public ResponseEntity<?> endRentByAdmin(@PathVariable(name = "orderId")Long orderId){
-        Order order = orderService.findById(orderId).get();
-        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-mm-dd");
+    public ResponseEntity<?> endRentByAdmin(@PathVariable(name = "orderId")Long orderId) throws ControllerException {
 
-        Date dateToday=new Date(System.currentTimeMillis());
+        try{
+            Order order = orderService.findById(orderId).get();
+            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-mm-dd");
 
-        long today = System.currentTimeMillis();
-        long notToday = order.getDateStart().getTime();
+            Date dateToday=new Date(System.currentTimeMillis());
 
-        if(dateToday.getTime() > order.getDateStart().getTime() || dateToday.getTime() == order.getDateStart().getTime()){
-            long timeDiff =  dateToday.getTime() - order.getDateStart().getTime();
-            long dayDiff = timeDiff / (1000 * 3600 * 24);
+            long today = System.currentTimeMillis();
+            long notToday = order.getDateStart().getTime();
 
-            order.setSumrentcost(dayDiff == 0 ?  order.getCar().getCostPerDay() : BigDecimal.valueOf(dayDiff).multiply(order.getCar().getCostPerDay()));
-            order.setStatus(Order_Status.Rent_End);
+            if(dateToday.getTime() > order.getDateStart().getTime() || dateToday.getTime() == order.getDateStart().getTime()){
+                long timeDiff =  dateToday.getTime() - order.getDateStart().getTime();
+                long dayDiff = timeDiff / (1000 * 3600 * 24);
 
-            userService.updateUserAfterRentEndAdmin(order);
-        } else {
-            order.setStatus(Order_Status.Rent_End_Before_Start);
-            order.setSumrentcost(BigDecimal.valueOf(0));
+                order.setSumrentcost(dayDiff == 0 ?  order.getCar().getCostPerDay() : BigDecimal.valueOf(dayDiff).multiply(order.getCar().getCostPerDay()));
+                order.setStatus(Order_Status.Rent_End);
+
+                userService.updateUserAfterRentEndAdmin(order);
+
+            } else {
+                order.setStatus(Order_Status.Rent_End_Before_Start);
+                order.setSumrentcost(BigDecimal.valueOf(0));
+            }
+
+            logger.debug("Admin update order: "+order.getOrder_id());
+
+            orderService.updateOrder(order);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e);
         }
-
-        orderService.updateOrder(order);
-
-        return new ResponseEntity<>(HttpStatus.OK);
 
     }
 
     @DeleteMapping("/admin/deleteOrder/{id}")
-    public ResponseEntity<?> deleteUserOrder(@PathVariable(name="id")Long id){
-        orderService.deleteOrder(id);
+    public ResponseEntity<?> deleteUserOrder(@PathVariable(name="id")Long id) throws ControllerException {
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        try{
+            orderService.deleteOrder(id);
+
+            logger.debug("Admin delete order: "+id.toString());
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e);
+        }
+
     }
 
 

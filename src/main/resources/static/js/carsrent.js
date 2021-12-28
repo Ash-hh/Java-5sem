@@ -5,12 +5,6 @@ let carId = curUrl[4]
 let carCostPerDay;
 
 
-
-
-
-
-
-
 function carRentPageOnload(){
 
     fetch(`/getrentcar/${carId}`,{
@@ -29,6 +23,12 @@ function carRentPageOnload(){
                 Cost per day: ${data.costPerDay}`;
             carCostPerDay = data.costPerDay;
     })
+}
+
+function setMinDateForEnd(){
+    let mindate = document.getElementById("RentStart").value;
+
+    document.getElementById("RentEnd").setAttribute("min", mindate);
 }
 
 async function sendRentRequest(){

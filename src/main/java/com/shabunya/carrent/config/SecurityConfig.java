@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin/adminpage").hasRole("ADMIN")
                 .antMatchers("/user/*").hasAnyRole("USER","ADMIN")
                 .antMatchers("/admin/index").hasRole("ADMIN")
-                .antMatchers("/getrentcar/{id}").hasAnyRole("USER","ADMIN")
+                .antMatchers("/rentcar/{id}","/getrentcar/{id}","/makeorder").hasAnyRole("USER","ADMIN")
                 .antMatchers("/register", "/loginin","/getUserInfo","/activate/*","/").permitAll()
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -40,7 +40,7 @@ function ChangeActivity(userId,IsActive){
         })
     }).then(result=>{
         if(result.ok){
-            window.location.replace(document.URL);
+            window.location.replace(document.location.origin+'/admin/adminpage/UsersInfo');
         }
     })
 }
@@ -58,7 +58,7 @@ function ChangeRole(userId,userRole){
         })
     }).then(result=>{
         if(result.ok){
-            window.location.replace(document.URL);
+            window.location.replace(document.location.origin+'/admin/adminpage/UsersInfo');
         }
     })
 }
@@ -127,7 +127,7 @@ async function carAdd(){
     }).then(result=>{
         if(result.ok){
             PopUpHide();
-            window.location.replace(document.URL);
+            window.location.replace(document.location.origin+'/admin/adminpage/CarsInfo');
         }
     })
 

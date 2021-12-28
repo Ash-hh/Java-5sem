@@ -13,6 +13,7 @@ import com.shabunya.carrent.model.Role;
 import com.shabunya.carrent.model.User;
 import com.shabunya.carrent.services.OrderService;
 import com.shabunya.carrent.services.UserService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,28 +49,34 @@ public class UserController {
         this.jwtFilter = jwtFilter;
     }
 
+    private static final Logger logger = Logger.getLogger(UserController.class);
 
     @GetMapping("/profile/{login}")
     public ModelAndView ProfilePage(@PathVariable(name = "login")String login, Model model) throws ControllerException, SerialException {
-        ModelAndView modelAndView = new ModelAndView();
-        List<Order> orders = orderService.userOrders(login);
-        List<UserOrdersDTO> userOrders = new ArrayList<>();
-        for(Order order : orders){
-            UserOrdersDTO orderToAdd = UserOrdersDTO.builder()
-                    .orderId(order.getOrder_id())
-                    .carName(order.getCar().getCarName())
-                    .carType(order.getCar().getType())
-                    .dateRentEnd(order.getDateEnd().toLocalDate())
-                    .dateRentStart(order.getDateStart().toLocalDate())
-                    .status(order.getStatus())
-                    .sumRentCost(order.getSumrentcost())
-                    .costPerDay(order.getCar().getCostPerDay())
-                    .build();
-            userOrders.add(orderToAdd);
+        try{
+            ModelAndView modelAndView = new ModelAndView();
+            List<Order> orders = orderService.userOrders(login);
+            List<UserOrdersDTO> userOrders = new ArrayList<>();
+            for(Order order : orders){
+                UserOrdersDTO orderToAdd = UserOrdersDTO.builder()
+                        .orderId(order.getOrder_id())
+                        .carName(order.getCar().getCarName())
+                        .carType(order.getCar().getType())
+                        .dateRentEnd(order.getDateEnd().toLocalDate())
+                        .dateRentStart(order.getDateStart().toLocalDate())
+                        .status(order.getStatus())
+                        .sumRentCost(order.getSumrentcost())
+                        .costPerDay(order.getCar().getCostPerDay())
+                        .build();
+                userOrders.add(orderToAdd);
+            }
+            modelAndView.setViewName("profile");
+            model.addAttribute("orders",userOrders);
+            return  modelAndView;
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e.getMessage(),e);
         }
-        modelAndView.setViewName("profile");
-        model.addAttribute("orders",userOrders);
-        return  modelAndView;
     }
 
     @GetMapping("/getUserInfo")
@@ -106,41 +113,56 @@ public class UserController {
 
 
     @PutMapping("/admin/updateUser")
-    public ResponseEntity<?> updateUser(@RequestBody AdminUserUpdateDTO adminUserUpdateDTO){
+    public ResponseEntity<?> updateUser(@RequestBody AdminUserUpdateDTO adminUserUpdateDTO) throws ControllerException {
+        try{
+            User user = userService.findById(adminUserUpdateDTO.getUserId());
 
-        User user = userService.findById(adminUserUpdateDTO.getUserId());
+            if(adminUserUpdateDTO.getNewRole() != null){
+                user.setUserRole(userService.getRoleByName(adminUserUpdateDTO.getNewRole()));
+            } else {
+                user.setActive(adminUserUpdateDTO.isNewActivity());
+            }
 
-        if(adminUserUpdateDTO.getNewRole() != null){
-            user.setUserRole(userService.getRoleByName(adminUserUpdateDTO.getNewRole()));
-        } else {
-            user.setActive(adminUserUpdateDTO.isNewActivity());
+            userService.saveUser(user);
+
+            logger.debug("update user"+user.getLogin());
+
+            return  new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e.getMessage(),e);
         }
-
-        userService.saveUser(user);
-
-        return  new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/admin/deleteUser/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable(name="id")Long id){
-        userService.deleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> deleteUser(@PathVariable(name="id")Long id) throws ControllerException {
+        try{
+            userService.deleteUser(id);
+            logger.debug("delete user id:"+id.toString());
+
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e.getMessage(),e);
+        }
+
     }
 
     @PutMapping("/user/userUpdate")
-    public ResponseEntity<?> userUpdateUser(@RequestBody UserUpdateDTO userUpdateDTO){
+    public ResponseEntity<?> userUpdateUser(@RequestBody UserUpdateDTO userUpdateDTO) throws ControllerException {
+        try{
+            User user = userService.findByLogin(jwtFilter.getCurrentUserLogin());
 
+            user.setBalance(user.getBalance().add(userUpdateDTO.getNewBalance()));
 
-        User user = userService.findByLogin(jwtFilter.getCurrentUserLogin());
+            userService.saveUser(user);
 
-        user.setBalance(user.getBalance().add(userUpdateDTO.getNewBalance()));
-
-        userService.saveUser(user);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new ControllerException(e.getMessage(),e);
+        }
     }
-
-
-
 
 }

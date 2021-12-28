@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 
@@ -19,6 +20,7 @@ import java.sql.Date;
 @AllArgsConstructor
 @Builder
 
+@Validated
 @Entity
 @Table(name = "users")
 
@@ -27,6 +29,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long user_id;
+
 
     @Column
     private String login;
@@ -42,6 +45,7 @@ public class User {
 
     @Column
     private boolean isActive;
+
 
     @Column
     private String email;
